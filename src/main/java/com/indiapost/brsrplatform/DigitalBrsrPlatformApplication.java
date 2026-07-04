@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DigitalBrsrPlatformApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DigitalBrsrPlatformApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DigitalBrsrPlatformApplication.class, args);
+    }
 
 }

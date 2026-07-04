@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Document - BRSR Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #c8102e, #8b0000); padding: 15px 30px; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .page-header { background: white; padding: 20px 30px; border-bottom: 3px solid #c8102e; margin-bottom: 30px; }
+        .upload-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 40px; }
+        .upload-zone {
+            border: 3px dashed #c8102e;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #fff5f5;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 25px;
+        }
+        .upload-zone:hover { background: #ffe8e8; }
+        .upload-zone i { font-size: 3rem; color: #c8102e; margin-bottom: 15px; }
+        .upload-zone h5 { color: #1a1a2e; font-weight: 700; }
+        .upload-zone p { color: #6c757d; font-size: 0.9rem; }
+        .form-label { font-weight: 600; color: #1a1a2e; }
+        .form-control, .form-select { border: 2px solid #e9ecef; border-radius: 8px; padding: 10px 15px; }
+        .form-control:focus, .form-select:focus { border-color: #c8102e; box-shadow: 0 0 0 3px rgba(200,16,46,0.15); }
+        .btn-upload-submit { background: linear-gradient(135deg, #c8102e, #8b0000); color: white; border: none; padding: 14px 40px; border-radius: 10px; font-weight: 700; font-size: 1rem; }
+        .btn-upload-submit:hover { color: white; opacity: 0.9; }
+        .btn-cancel { border: 2px solid #6c757d; color: #6c757d; padding: 14px 40px; border-radius: 10px; font-weight: 600; background: transparent; text-decoration: none; }
+        .btn-cancel:hover { background: #6c757d; color: white; }
+        .file-info { background: #f8f9fa; border-radius: 10px; padding: 15px; margin-top: 15px; display: none; }
+        .allowed-types { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .type-badge { background: #f8f9fa; border: 1px solid #dee2e6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-envelope me-2"></i>India Post - BRSR Platform</span>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/dashboard" class="text-white text-decoration-none"><i class="fas fa-home me-1"></i>Dashboard</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container-fluid">
+        <a href="/documents" style="color:#c8102e; text-decoration:none; font-weight:600;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Documents
+        </a>
+        <h4 class="mt-1" style="color:#1a1a2e; font-weight:700;">
+            <i class="fas fa-upload me-2" style="color:#c8102e;"></i>
+            Upload Document
+        </h4>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+
+    <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${errorMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="upload-card">
+
+        <form th:action="@{/documents/upload}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <!-- Upload Zone -->
+            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt d-block"></i>
+                <h5>Click to Select File</h5>
+                <p>or drag and drop your file here</p>
+                <div class="allowed-types justify-content-center">
+                    <span class="type-badge"><i class="fas fa-file-pdf text-danger me-1"></i>PDF</span>
+                    <span class="type-badge"><i class="fas fa-file-excel text-success me-1"></i>Excel</span>
+                    <span class="type-badge"><i class="fas fa-file-word text-primary me-1"></i>Word</span>
+                    <span class="type-badge"><i class="fas fa-file-image text-warning me-1"></i>Image</span>
+                </div>
+                <small class="text-muted d-block mt-2">Maximum file size: 10MB</small>
+            </div>
+
+            <!-- Hidden File Input -->
+            <input type="file" id="fileInput" name="file"
+                   style="display:none"
+                   onchange="showFileInfo(this)"/>
+
+            <!-- File Info Display -->
+            <div class="file-info" id="fileInfo">
+                <i class="fas fa-file me-2 text-success"></i>
+                <strong id="fileName"></strong>
+                <span class="text-muted ms-2" id="fileSize"></span>
+            </div>
+
+            <!-- Select Report -->
+            <div class="mb-4 mt-4">
+                <label class="form-label">
+                    Select Report <span class="text-danger">*</span>
+                </label>
+                <select name="reportId" class="form-select" required>
+                    <option value="">-- Select Report --</option>
+                    <option th:each="report : ${reports}"
+                            th:value="${report.id}"
+                            th:text="'Report #' + ${report.id} + ' - ' + ${report.financialYear} + ' (' + ${report.status} + ')'">
+                    </option>
+                </select>
+                <small class="text-muted">Select the report this document belongs to</small>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn-upload-submit">
+                    <i class="fas fa-upload me-2"></i>Upload Document
+                </button>
+                <a href="/documents" class="btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showFileInfo(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            document.getElementById('fileName').textContent = file.name;
+            const size = (file.size / 1024 / 1024).toFixed(2);
+            document.getElementById('fileSize').textContent = '(' + size + ' MB)';
+            document.getElementById('fileInfo').style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>

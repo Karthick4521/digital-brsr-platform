@@ -1,5 +1,6 @@
 package com.indiapost.brsrplatform.repository;
 
+
 import com.indiapost.brsrplatform.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

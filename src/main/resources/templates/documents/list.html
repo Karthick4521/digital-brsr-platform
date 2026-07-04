@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Documents - BRSR Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #c8102e, #8b0000); padding: 15px 30px; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .page-header { background: white; padding: 20px 30px; border-bottom: 3px solid #c8102e; margin-bottom: 30px; }
+        .btn-upload { background: linear-gradient(135deg, #c8102e, #8b0000); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; }
+        .btn-upload:hover { color: white; opacity: 0.9; }
+        .table-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); overflow: hidden; }
+        .table thead { background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; }
+        .table thead th { border: none; padding: 15px; font-weight: 600; }
+        .table tbody td { padding: 12px 15px; vertical-align: middle; }
+        .table tbody tr:hover { background: #fff5f5; }
+        .file-icon { font-size: 1.5rem; margin-right: 10px; }
+        .file-pdf { color: #e74c3c; }
+        .file-excel { color: #27ae60; }
+        .file-word { color: #3498db; }
+        .file-other { color: #95a5a6; }
+        .btn-download { background: #27ae60; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; }
+        .btn-delete { background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; }
+        .btn-download:hover { background: #229954; color: white; }
+        .btn-delete:hover { background: #c0392b; color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-envelope me-2"></i>India Post - BRSR Platform</span>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/dashboard" class="text-white text-decoration-none"><i class="fas fa-home me-1"></i>Dashboard</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div>
+            <a href="/dashboard" style="color:#c8102e; text-decoration:none; font-weight:600;">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+            <h4 class="mt-1" style="color:#1a1a2e; font-weight:700; margin:0;">
+                <i class="fas fa-folder me-2" style="color:#c8102e;"></i>
+                Document Management
+            </h4>
+        </div>
+        <a href="/documents/upload" class="btn-upload">
+            <i class="fas fa-upload me-2"></i>Upload Document
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+
+    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${successMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${errorMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="table-card">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>File Name</th>
+                <th>File Type</th>
+                <th>Report ID</th>
+                <th>Uploaded Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="doc, i : ${documents}">
+                <td th:text="${i.count}"></td>
+                <td>
+                    <i class="fas fa-file file-icon file-other"></i>
+                    <span th:text="${doc.fileName}"></span>
+                </td>
+                <td th:text="${doc.fileType ?: 'Unknown'}"></td>
+                <td th:text="'Report #' + ${doc.reportId}"></td>
+                <td th:text="${#temporals.format(doc.uploadedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                <td>
+                    <a th:href="@{/documents/download/{id}(id=${doc.id})}"
+                       class="btn-download me-1">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    <a th:href="@{/documents/delete/{id}(id=${doc.id})}"
+                       class="btn-delete"
+                       onclick="return confirm('Delete this document?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(documents)}">
+                <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                    No documents found. Click "Upload Document" to add one.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
