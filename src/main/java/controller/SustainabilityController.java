@@ -27,9 +27,18 @@ public class SustainabilityController {
     private UserService userService;
 
     @GetMapping
-    public String listReports(Model model) {
-        model.addAttribute("reports", reportService.getAllReports());
-        model.addAttribute("departments", departmentService.getAllDepartments());
+    public String listReports(Model model, Authentication authentication) {
+        User currentUser = userService.findByEmail(authentication.getName());
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            model.addAttribute("reports", reportService.getAllReports());
+        } else {
+            model.addAttribute("reports",
+                    reportService.getReportsByUser(currentUser.getId()));
+        }
+        model.addAttribute("isAdmin", isAdmin);
         return "sustainability/list";
     }
 
@@ -63,9 +72,23 @@ public class SustainabilityController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    public String showEditForm(@PathVariable Long id,
+                               Model model,
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
         SustainabilityReport report = reportService.getReportById(id);
         if (report == null) return "redirect:/reports";
+
+        User currentUser = userService.findByEmail(authentication.getName());
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Only owner or admin can edit
+        if (!isAdmin && !report.getSubmittedBy().equals(currentUser.getId())) {
+            redirectAttributes.addFlashAttribute("errorMsg",
+                    "You can only edit your own reports!");
+            return "redirect:/reports";
+        }
 
         ReportDetails details = reportService.getDetailsByReportId(id);
         if (details == null) details = new ReportDetails();
@@ -98,7 +121,22 @@ public class SustainabilityController {
 
     @GetMapping("/delete/{id}")
     public String deleteReport(@PathVariable Long id,
+                               Authentication authentication,
                                RedirectAttributes redirectAttributes) {
+        SustainabilityReport report = reportService.getReportById(id);
+        if (report == null) return "redirect:/reports";
+
+        User currentUser = userService.findByEmail(authentication.getName());
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // Only owner or admin can delete
+        if (!isAdmin && !report.getSubmittedBy().equals(currentUser.getId())) {
+            redirectAttributes.addFlashAttribute("errorMsg",
+                    "You can only delete your own reports!");
+            return "redirect:/reports";
+        }
+
         reportService.deleteReport(id);
         redirectAttributes.addFlashAttribute("successMsg",
                 "Report deleted successfully!");

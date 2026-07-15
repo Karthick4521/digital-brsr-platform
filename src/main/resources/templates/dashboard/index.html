@@ -17,6 +17,14 @@
             z-index: 100;
         }
         .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .admin-badge {
+            background: #1a1a2e;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
 
         .welcome-card {
             background: linear-gradient(135deg, #c8102e, #8b0000);
@@ -57,7 +65,6 @@
         }
         .stat-number { font-size: 2.2rem; font-weight: 800; color: #1a1a2e; line-height: 1; }
         .stat-label { color: #6c757d; font-size: 0.85rem; margin-top: 5px; font-weight: 500; }
-        .stat-change { font-size: 0.8rem; margin-top: 8px; }
 
         .menu-card {
             background: white;
@@ -92,21 +99,32 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             overflow: hidden;
         }
-        .table-header {
-            padding: 20px 25px;
-            border-bottom: 2px solid #f0f2f5;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
         .table thead { background: #f8f9fa; }
-        .table thead th { border: none; padding: 12px 15px; font-weight: 600; color: #6c757d; font-size: 0.85rem; }
-        .table tbody td { padding: 12px 15px; vertical-align: middle; border-color: #f0f2f5; }
+        .table thead th {
+            border: none; padding: 12px 15px;
+            font-weight: 600; color: #6c757d; font-size: 0.85rem;
+        }
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-color: #f0f2f5;
+        }
         .status-draft { background: #95a5a6; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; }
         .status-submitted { background: #f39c12; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; }
         .status-approved { background: #27ae60; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; }
         .status-rejected { background: #e74c3c; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; }
-
         .section-title { font-weight: 700; color: #1a1a2e; margin-bottom: 20px; font-size: 1.1rem; }
+
+        .admin-banner {
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            color: white;
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -116,12 +134,20 @@
     <div class="container-fluid">
         <span class="navbar-brand">
             <i class="fas fa-envelope me-2"></i>India Post - BRSR Platform
+            <span class="admin-badge" sec:authorize="hasRole('ADMIN')">
+                <i class="fas fa-shield-alt me-1"></i>ADMIN
+            </span>
         </span>
         <div class="d-flex align-items-center gap-3">
             <span class="text-white">
                 <i class="fas fa-user-circle me-1"></i>
                 <span th:text="${username}">User</span>
             </span>
+            <a sec:authorize="hasRole('ADMIN')"
+               href="/admin"
+               class="btn btn-light btn-sm">
+                <i class="fas fa-shield-alt me-1"></i>Admin Panel
+            </a>
             <a href="/logout" class="btn btn-outline-light btn-sm">
                 <i class="fas fa-sign-out-alt me-1"></i>Logout
             </a>
@@ -130,6 +156,19 @@
 </nav>
 
 <div class="container-fluid p-4">
+
+    <!-- Admin Banner -->
+    <div class="admin-banner" sec:authorize="hasRole('ADMIN')">
+        <div>
+            <i class="fas fa-shield-alt me-2"></i>
+            <strong>You are logged in as ADMIN</strong> —
+            You have full access to all reports, users and downloads.
+        </div>
+        <a href="/admin"
+           style="background:#c8102e; color:white; padding:8px 20px; border-radius:8px; text-decoration:none; font-weight:600;">
+            <i class="fas fa-cog me-1"></i>Go to Admin Panel
+        </a>
+    </div>
 
     <!-- Welcome Card -->
     <div class="welcome-card">
@@ -248,16 +287,18 @@
                 <div class="menu-desc">Review reports</div>
             </a>
         </div>
-        <div class="col-md-2">
+
+        <!-- ADMIN ONLY: PDF & Excel & Admin Panel -->
+        <div class="col-md-2" sec:authorize="hasRole('ADMIN')">
             <a href="/reports/pdf" class="menu-card">
                 <div class="menu-icon" style="background:#e74c3c;">
                     <i class="fas fa-file-pdf"></i>
                 </div>
                 <div class="menu-title">PDF Report</div>
-                <div class="menu-desc">Generate PDF</div>
+                <div class="menu-desc">Download PDF</div>
             </a>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2" sec:authorize="hasRole('ADMIN')">
             <a href="/reports/excel" class="menu-card">
                 <div class="menu-icon" style="background:#1a7a1a;">
                     <i class="fas fa-file-excel"></i>
@@ -266,6 +307,29 @@
                 <div class="menu-desc">Export to Excel</div>
             </a>
         </div>
+
+        <!-- ADMIN ONLY: Admin Panel -->
+        <div class="col-md-2" sec:authorize="hasRole('ADMIN')">
+            <a href="/admin" class="menu-card">
+                <div class="menu-icon" style="background:#1a1a2e;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="menu-title">Admin Panel</div>
+                <div class="menu-desc">Manage users</div>
+            </a>
+        </div>
+
+        <!-- USER ONLY: My Reports -->
+        <div class="col-md-2" sec:authorize="hasRole('USER')">
+            <a href="/reports" class="menu-card">
+                <div class="menu-icon" style="background:#9b59b6;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="menu-title">My Reports</div>
+                <div class="menu-desc">View my reports</div>
+            </a>
+        </div>
+
     </div>
 
     <!-- Recent Reports Table -->

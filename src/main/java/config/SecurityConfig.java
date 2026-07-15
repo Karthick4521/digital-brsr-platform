@@ -23,16 +23,17 @@ public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder);
+        DaoAuthenticationProvider authProvider =
+                new DaoAuthenticationProvider(passwordEncoder);
         authProvider.setUserDetailsService(userDetailsService);
         return authProvider;
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
@@ -41,7 +42,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/register", "/css/**",
+                                "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/reports/pdf",
+                                "/reports/excel").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

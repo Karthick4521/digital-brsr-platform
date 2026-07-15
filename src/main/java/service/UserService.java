@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -28,5 +30,33 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    public void makeAdmin(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setRole("ADMIN");
+            userRepository.save(user);
+        }
+    }
+
+    public void makeUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setRole("USER");
+            userRepository.save(user);
+        }
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }

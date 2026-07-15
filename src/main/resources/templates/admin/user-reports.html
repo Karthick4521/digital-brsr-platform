@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Reports - BRSR Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 15px 30px; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .admin-badge { background: #c8102e; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-left: 8px; }
+        .page-header { background: white; padding: 20px 30px; border-bottom: 3px solid #1a1a2e; margin-bottom: 30px; }
+        .user-info-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 25px; margin-bottom: 25px; }
+        .table-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); overflow: hidden; }
+        .table thead { background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; }
+        .table thead th { border: none; padding: 15px; font-weight: 600; }
+        .table tbody td { padding: 12px 15px; vertical-align: middle; }
+        .table tbody tr:hover { background: #f8f9fa; }
+        .status-draft { background: #95a5a6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .status-submitted { background: #f39c12; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .status-approved { background: #27ae60; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .status-rejected { background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .btn-view { background: #3498db; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; }
+        .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; }
+        .data-label { font-weight: 600; color: #6c757d; font-size: 0.85rem; }
+        .data-value { font-size: 1rem; font-weight: 600; color: #1a1a2e; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            <i class="fas fa-shield-alt me-2"></i>
+            BRSR Admin Panel
+            <span class="admin-badge">ADMIN</span>
+        </span>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/admin" class="text-white text-decoration-none">
+                <i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard
+            </a>
+            <a href="/logout" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container-fluid">
+        <a href="/admin/users"
+           style="color:#1a1a2e; text-decoration:none; font-weight:600;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+        <h4 class="mt-1" style="color:#1a1a2e; font-weight:700; margin:0;">
+            <i class="fas fa-file-alt me-2" style="color:#c8102e;"></i>
+            User Reports
+        </h4>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+
+    <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="row">
+            <div class="col-md-1 text-center">
+                <i class="fas fa-user-circle"
+                   style="font-size:3rem; color:#c8102e;"></i>
+            </div>
+            <div class="col-md-11">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="data-label">Full Name</div>
+                        <div class="data-value"
+                             th:text="${user.fullName}"></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="data-label">Email</div>
+                        <div class="data-value"
+                             th:text="${user.email}"></div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="data-label">Role</div>
+                        <div class="data-value"
+                             th:text="${user.role}"></div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="data-label">Total Reports</div>
+                        <div class="data-value"
+                             th:text="${reports.size()}"></div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="data-label">Status</div>
+                        <div class="data-value">
+                            <span th:if="${user.isActive}"
+                                  style="color:#27ae60;">Active</span>
+                            <span th:unless="${user.isActive}"
+                                  style="color:#e74c3c;">Inactive</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="table-card">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Report ID</th>
+                <th>Financial Year</th>
+                <th>Department ID</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report, i : ${reports}">
+                <td th:text="${i.count}"></td>
+                <td th:text="'#' + ${report.id}"></td>
+                <td><strong th:text="${report.financialYear}"></strong></td>
+                <td th:text="${report.departmentId}"></td>
+                <td>
+                        <span th:class="${'status-' + #strings.toLowerCase(report.status)}"
+                              th:text="${report.status}"></span>
+                </td>
+                <td th:text="${#temporals.format(report.createdAt, 'dd-MM-yyyy')}"></td>
+                <td>
+                    <a th:href="@{/reports/view/{id}(id=${report.id})}"
+                       class="btn-view me-1">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <a th:href="@{/admin/reports/{id}/edit(id=${report.id})}"
+                       class="btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reports)}">
+                <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                    No reports found for this user.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
