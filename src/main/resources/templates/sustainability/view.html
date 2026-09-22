@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Report - BRSR Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #c8102e, #8b0000); padding: 15px 30px; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .page-header { background: white; padding: 20px 30px; border-bottom: 3px solid #c8102e; margin-bottom: 30px; }
+        .view-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 30px; margin-bottom: 25px; }
+        .section-title { color: white; font-weight: 700; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; }
+        .energy { background: linear-gradient(135deg, #e67e22, #d35400); }
+        .water { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .waste { background: linear-gradient(135deg, #27ae60, #229954); }
+        .employee { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .governance { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+        .basic { background: linear-gradient(135deg, #c8102e, #8b0000); }
+        .data-label { font-weight: 600; color: #6c757d; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .data-value { font-size: 1.1rem; font-weight: 600; color: #1a1a2e; margin-top: 5px; }
+        .data-unit { font-size: 0.8rem; color: #6c757d; font-weight: 400; }
+        .status-draft { background: #95a5a6; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+        .status-submitted { background: #f39c12; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+        .status-approved { background: #27ae60; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+        .status-rejected { background: #e74c3c; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+        .btn-edit-report { background: linear-gradient(135deg, #c8102e, #8b0000); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; text-decoration: none; }
+        .btn-edit-report:hover { color: white; opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-envelope me-2"></i>India Post - BRSR Platform</span>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/dashboard" class="text-white text-decoration-none"><i class="fas fa-home me-1"></i>Dashboard</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div>
+            <a href="/reports" style="color:#c8102e; text-decoration:none; font-weight:600;">
+                <i class="fas fa-arrow-left me-1"></i>Back to Reports
+            </a>
+            <h4 class="mt-1" style="color:#1a1a2e; font-weight:700;">
+                <i class="fas fa-file-alt me-2" style="color:#c8102e;"></i>
+                Report Details
+            </h4>
+        </div>
+        <a th:href="@{/reports/edit/{id}(id=${report.id})}" class="btn-edit-report">
+            <i class="fas fa-edit me-2"></i>Edit Report
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+
+    <!-- Basic Info -->
+    <div class="view-card">
+        <div class="section-title basic">
+            <i class="fas fa-info-circle me-2"></i>Basic Information
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="data-label">Report ID</div>
+                <div class="data-value" th:text="'#' + ${report.id}"></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="data-label">Financial Year</div>
+                <div class="data-value" th:text="${report.financialYear}"></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="data-label">Department ID</div>
+                <div class="data-value" th:text="${report.departmentId}"></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="data-label">Status</div>
+                <div class="mt-1">
+                    <span th:class="${'status-' + #strings.toLowerCase(report.status)}"
+                          th:text="${report.status}"></span>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="data-label">Created Date</div>
+                <div class="data-value"
+                     th:text="${#temporals.format(report.createdAt, 'dd-MM-yyyy')}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Energy -->
+    <div class="view-card" th:if="${details != null}">
+        <div class="section-title energy">
+            <i class="fas fa-bolt me-2"></i>Energy Consumption
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Total Energy Consumed</div>
+                <div class="data-value">
+                    <span th:text="${details.energyConsumption ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.energyConsumption != null}">GJ</span>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Renewable Energy</div>
+                <div class="data-value">
+                    <span th:text="${details.renewableEnergyPercent ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.renewableEnergyPercent != null}">%</span>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Carbon Emission</div>
+                <div class="data-value">
+                    <span th:text="${details.carbonEmission ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.carbonEmission != null}">tCO2e</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Water -->
+    <div class="view-card" th:if="${details != null}">
+        <div class="section-title water">
+            <i class="fas fa-tint me-2"></i>Water Consumption
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Total Water Consumed</div>
+                <div class="data-value">
+                    <span th:text="${details.waterConsumption ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.waterConsumption != null}">KL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Waste -->
+    <div class="view-card" th:if="${details != null}">
+        <div class="section-title waste">
+            <i class="fas fa-recycle me-2"></i>Waste Management
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Waste Generated</div>
+                <div class="data-value">
+                    <span th:text="${details.wasteGenerated ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.wasteGenerated != null}">MT</span>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Waste Recycled</div>
+                <div class="data-value">
+                    <span th:text="${details.wasteRecycled ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.wasteRecycled != null}">MT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee -->
+    <div class="view-card" th:if="${details != null}">
+        <div class="section-title employee">
+            <i class="fas fa-users me-2"></i>Employee Welfare
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Total Employees</div>
+                <div class="data-value" th:text="${details.totalEmployees ?: 'N/A'}"></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Training Hours</div>
+                <div class="data-value">
+                    <span th:text="${details.employeeTrainingHours ?: 'N/A'}"></span>
+                    <span class="data-unit" th:if="${details.employeeTrainingHours != null}">Hours</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Governance -->
+    <div class="view-card" th:if="${details != null}">
+        <div class="section-title governance">
+            <i class="fas fa-landmark me-2"></i>Governance Activities
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="data-label">Governance Meetings</div>
+                <div class="data-value" th:text="${details.governanceMeetings ?: 'N/A'}"></div>
+            </div>
+            <div class="col-md-12 mb-3">
+                <div class="data-label">Remarks</div>
+                <div class="data-value" th:text="${details.remarks ?: 'No remarks'}"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

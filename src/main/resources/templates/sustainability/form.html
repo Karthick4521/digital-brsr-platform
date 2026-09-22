@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sustainability Report Form - BRSR Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #c8102e, #8b0000); padding: 15px 30px; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; font-weight: 700; }
+        .page-header { background: white; padding: 20px 30px; border-bottom: 3px solid #c8102e; margin-bottom: 30px; }
+        .form-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 35px; margin-bottom: 25px; }
+        .section-title { color: white; font-weight: 700; padding: 12px 20px; border-radius: 10px; margin-bottom: 25px; font-size: 1rem; }
+        .energy { background: linear-gradient(135deg, #e67e22, #d35400); }
+        .water { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .waste { background: linear-gradient(135deg, #27ae60, #229954); }
+        .employee { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .governance { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+        .basic { background: linear-gradient(135deg, #c8102e, #8b0000); }
+        .form-label { font-weight: 600; color: #1a1a2e; font-size: 0.9rem; }
+        .form-control, .form-select { border: 2px solid #e9ecef; border-radius: 8px; padding: 10px 15px; }
+        .form-control:focus, .form-select:focus { border-color: #c8102e; box-shadow: 0 0 0 3px rgba(200,16,46,0.15); }
+        .unit-label { background: #f8f9fa; border: 2px solid #e9ecef; border-left: none; border-radius: 0 8px 8px 0; padding: 10px 15px; color: #6c757d; font-size: 0.85rem; }
+        .btn-save { background: linear-gradient(135deg, #c8102e, #8b0000); color: white; border: none; padding: 14px 40px; border-radius: 10px; font-weight: 700; font-size: 1rem; }
+        .btn-save:hover { color: white; opacity: 0.9; }
+        .btn-cancel { border: 2px solid #6c757d; color: #6c757d; padding: 14px 40px; border-radius: 10px; font-weight: 600; background: transparent; text-decoration: none; }
+        .btn-cancel:hover { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-envelope me-2"></i>India Post - BRSR Platform</span>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/dashboard" class="text-white text-decoration-none"><i class="fas fa-home me-1"></i>Dashboard</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+        </div>
+    </div>
+</nav>
+<div class="page-header">
+    <div class="container-fluid">
+        <a href="/reports" style="color:#c8102e; text-decoration:none; font-weight:600;"><i class="fas fa-arrow-left me-1"></i>Back to Reports</a>
+        <h4 class="mt-1" style="color:#1a1a2e; font-weight:700;">
+            <i class="fas fa-leaf me-2" style="color:#c8102e;"></i>
+            <span th:if="${report.id == null}">New Sustainability Report</span>
+            <span th:unless="${report.id == null}">Edit Sustainability Report</span>
+        </h4>
+    </div>
+</div>
+<div class="container-fluid px-4">
+    <form th:action="${report.id == null ? '/reports/save' : '/reports/update'}" method="post">
+        <input type="hidden" name="id" th:value="${report.id}"/>
+        <input type="hidden" name="details.id" th:value="${details.id}"/>
+
+        <!-- Basic Information -->
+        <div class="form-card">
+            <div class="section-title basic"><i class="fas fa-info-circle me-2"></i>Basic Information</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Department <span class="text-danger">*</span></label>
+                    <select name="departmentId" class="form-select" required>
+                        <option value="">-- Select Department --</option>
+                        <option th:each="dept : ${departments}" th:value="${dept.id}" th:text="${dept.name}" th:selected="${report.departmentId == dept.id}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Financial Year <span class="text-danger">*</span></label>
+                    <select name="financialYear" class="form-select" required>
+                        <option value="">-- Select Year --</option>
+                        <option value="2024-25" th:selected="${report.financialYear == '2024-25'}">2024-25</option>
+                        <option value="2023-24" th:selected="${report.financialYear == '2023-24'}">2023-24</option>
+                        <option value="2022-23" th:selected="${report.financialYear == '2022-23'}">2022-23</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy -->
+        <div class="form-card">
+            <div class="section-title energy"><i class="fas fa-bolt me-2"></i>Energy Consumption</div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Total Energy Consumed</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="energyConsumption" th:value="${details.energyConsumption}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">GJ</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Renewable Energy %</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="renewableEnergyPercent" th:value="${details.renewableEnergyPercent}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">%</span>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Carbon Emission</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="carbonEmission" th:value="${details.carbonEmission}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">tCO2e</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Water Consumption -->
+        <div class="form-card">
+            <div class="section-title water"><i class="fas fa-tint me-2"></i>Water Consumption</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Total Water Consumed</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="waterConsumption" th:value="${details.waterConsumption}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">KL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waste Management -->
+        <div class="form-card">
+            <div class="section-title waste"><i class="fas fa-recycle me-2"></i>Waste Management</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Total Waste Generated</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="wasteGenerated" th:value="${details.wasteGenerated}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">MT</span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Waste Recycled</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="wasteRecycled" th:value="${details.wasteRecycled}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">MT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Welfare -->
+        <div class="form-card">
+            <div class="section-title employee"><i class="fas fa-users me-2"></i>Employee Welfare</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Total Employees</label>
+                    <input type="number" name="totalEmployees" th:value="${details.totalEmployees}" class="form-control" placeholder="0"/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Training Hours</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" name="employeeTrainingHours" th:value="${details.employeeTrainingHours}" class="form-control" placeholder="0.00"/>
+                        <span class="unit-label">Hours</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Governance -->
+        <div class="form-card">
+            <div class="section-title governance"><i class="fas fa-landmark me-2"></i>Governance Activities</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Governance Meetings</label>
+                    <input type="number" name="governanceMeetings" th:value="${details.governanceMeetings}" class="form-control" placeholder="0"/>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Remarks</label>
+                    <textarea name="remarks" th:text="${details.remarks}" class="form-control" rows="4" placeholder="Enter remarks..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex gap-3 mb-5">
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save me-2"></i>
+                <span th:if="${report.id == null}">Save Report</span>
+                <span th:unless="${report.id == null}">Update Report</span>
+            </button>
+            <a href="/reports" class="btn-cancel"><i class="fas fa-times me-2"></i>Cancel</a>
+        </div>
+
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
